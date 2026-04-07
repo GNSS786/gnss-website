@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-shelter=yes">
+    <title>Guru Nanak Sr. Sec. School | Admin + Calendar + Messaging</title>
+    <!-- Google Fonts & Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- FullCalendar for monthly planner -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fef9f0;
+            color: #1e2a3e;
+            line-height: 1.5;
+        }
+        :root {
+            --primary: #1f4f2b;
+            --primary-dark: #0e3a18;
+            --gold: #c9a03d;
+            --gold-light: #f5e2b0;
+            --bg-light: #fffdf9;
+            --shadow-sm: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 20px 25px -12px rgba(0, 0, 0, 0.1);
+        }
+        a { text-decoration: none; color: inherit; }
+        .top-bar {
+            background-color: var(--primary-dark);
+            color: #fef9e6;
+            padding: 10px 5%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            gap: 15px;
+        }
+        .contact-info span {
+            margin-right: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .social-links a {
+            margin-left: 12px;
+            color: #ffecb3;
+            transition: 0.2s;
+        }
+        .social-links a:hover { color: var(--gold); }
+        .main-header {
+            background: var(--bg-light);
+            padding: 20px 5%;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--gold-light);
+        }
+        .logo-area h1 { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+        .logo-area p { font-size: 0.9rem; color: #5a6e46; font-weight: 500; }
+        .affiliation { background: var(--gold-light); padding: 8px 16px; border-radius: 40px; font-size: 0.8rem; font-weight: 600; }
+        nav {
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #e9e9e9;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .menu {
+            display: flex;
+            flex-wrap: wrap;
+            list-style: none;
+            gap: 2px;
+        }
+        .menu li { position: relative; }
+        .menu li a {
+            display: inline-block;
+            padding: 16px 18px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #2c3e2f;
+        }
+        .menu li a:hover, .dropdown:hover > a { color: var(--gold); background: #faf7f0; }
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 220px;
+            box-shadow: var(--shadow-md);
+            border-radius: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.2s;
+            z-index: 200;
+        }
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+        }
+        .dropdown-content a {
+            display: block;
+            padding: 12px 20px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #f2e9dd;
+        }
+        .mobile-menu-btn { display: none; font-size: 1.5rem; background: none; border: none; cursor: pointer; color: var(--primary); }
+        @media (max-width: 1024px) {
+            .menu { display: none; width: 100%; flex-direction: column; background: white; }
+            .menu.show { display: flex; }
+            .mobile-menu-btn { display: block; }
+            .dropdown-content { position: static; opacity: 1; visibility: visible; padding-left: 20px; display: none; box-shadow: none; }
+            .dropdown.active .dropdown-content { display: block; }
+        }
+        .hero {
+            background: linear-gradient(135deg, #f9f1e0 0%, #e7f0e5 100%);
+            padding: 60px 5%;
+            text-align: center;
+        }
+        .hero h2 { font-size: 2.5rem; color: var(--primary-dark); }
+        .container { max-width: 1300px; margin: 0 auto; padding: 50px 24px; }
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 32px;
+            border-left: 6px solid var(--gold);
+            padding-left: 20px;
+            color: #2d4a22;
+        }
+        .grid-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #f3e9db;
+        }
+        .card i { font-size: 2rem; color: var(--gold); margin-bottom: 15px; }
+        .club-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 20px;
+        }
+        .club-badge {
+            background: #f2ecdf;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        footer {
+            background: #1c2e1b;
+            color: #e6e2d4;
+            padding: 40px 5% 20px;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .copyright { text-align: center; border-top: 1px solid #3a5536; padding-top: 20px; font-size: 0.8rem; }
+        .quick-links-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+            background: #f6f2ea;
+            padding: 20px;
+            border-radius: 32px;
+            margin-top: 40px;
+        }
+        /* Admin Panel Styles */
+        .admin-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+        .admin-toggle {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: var(--shadow-md);
+            font-size: 24px;
+        }
+        .admin-toggle:hover { background: var(--gold); transform: scale(1.05); }
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .admin-modal.active { display: flex; }
+        .admin-card {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            border-radius: 32px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .admin-card h3 { margin-bottom: 20px; color: var(--primary); }
+        .admin-card input, .admin-card textarea, .admin-card select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 40px;
+            font-size: 1rem;
+        }
+        .admin-card textarea { border-radius: 20px; resize: vertical; }
+        .admin-card button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .edit-section { margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px; }
+        .edit-field { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+        .edit-field input { flex: 1; }
+        .small-btn { background: var(--gold); padding: 8px 16px; border-radius: 40px; border: none; font-weight: bold; cursor: pointer; }
+        .success-msg { background: #d4edda; color: #155724; padding: 10px; border-radius: 30px; margin-top: 15px; font-size: 0.8rem; text-align: center; }
+        .logout-btn { background: #6c757d; margin-top: 10px; }
+        .login-error { color: #b91c1c; font-size: 0.8rem; margin-top: 5px; }
+        .calendar-container { margin-top: 20px; background: white; padding: 20px; border-radius: 28px; box-shadow: var(--shadow-sm); }
+        .messaging-panel { background: #fef7e8; border-radius: 28px; padding: 24px; margin-top: 30px; }
+        .msg-icon { background: #25D366; color: white; border-radius: 50px; padding: 4px 12px; font-size: 0.8rem; display: inline-block; }
+        .whatsapp-btn { background: #25D366; }
+        .sms-btn { background: #0288d1; }
+    </style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="contact-info" id="contactInfoBlock">
+        <span id="phoneDisplay"><i class="fas fa-phone-alt"></i> 98124-37327</span>
+        <span id="emailDisplay"><i class="fas fa-envelope"></i> 41309@cbseshiksha.in</span>
+    </div>
+    <div class="social-links">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-youtube"></i></a>
+    </div>
+</div>
+
+<div class="main-header">
+    <div class="logo-area">
+        <h1>Guru Nanak Sr. Sec. School</h1>
+        <p>Bhuna Road, Ratia (Haryana) | Affiliated to CBSE</p>
+    </div>
+    <div class="affiliation"><i class="fas fa-award"></i> CBSE Affiliation No. 531234</div>
+</div>
+
+<nav>
+    <div class="nav-container">
+        <button class="mobile-menu-btn" id="menuToggle"><i class="fas fa-bars"></i></button>
+        <ul class="menu" id="mainMenu">
+            <li><a href="#home">Home</a></li>
+            <li class="dropdown"><a href="#">About Us <i class="fas fa-chevron-down"></i></a>
+                <div class="dropdown-content"><a href="#about-school">About School</a><a href="#founder">Our Founder</a><a href="#principal-desk">Principal's Desk</a><a href="#vision">Vision & Values</a></div>
+            </li>
+            <li class="dropdown"><a href="#">Academics</a><div class="dropdown-content"><a href="#edu-goals">Educational Goals</a><a href="#exams">Examinations</a></div></li>
+            <li class="dropdown"><a href="#">Amenities</a><div class="dropdown-content"><a href="#library">Library</a><a href="#transport">Transport</a></div></li>
+            <li><a href="#calendar-monthly">Monthly Planner</a></li>
+            <li><a href="#messaging-section">Communications</a></li>
+            <li><a href="#contact-us">Contact Us</a></li>
+        </ul>
+        <div><i class="fas fa-search" style="color: var(--primary);"></i></div>
+    </div>
+</nav>
+
+<main>
+    <div class="hero" id="home">
+        <h2>Empowering Minds, Enriching Souls</h2>
+        <p>"A healthy mind lives in a healthy body." — Excellence in academics, sports & values. Guru Nanak Sr. Sec. School, Ratia.</p>
+    </div>
+
+    <!-- MONTHLY CALENDAR (PLANNER) SECTION -->
+    <div class="container" id="calendar-monthly">
+        <h2 class="section-title"><i class="fas fa-calendar-alt"></i> Monthly Planner & Academic Calendar</h2>
+        <div class="calendar-container">
+            <div id="schoolCalendar"></div>
+            <p style="margin-top: 15px; font-size: 0.8rem; text-align: center;">📌 *Events updated by admin. Click on any event to view details.</p>
+        </div>
+    </div>
+
+    <!-- MESSAGING SECTION (SMS / WhatsApp) -->
+    <div class="container" id="messaging-section">
+        <h2 class="section-title"><i class="fas fa-comment-dots"></i> Send Announcements</h2>
+        <div class="messaging-panel">
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                <div style="flex:1; min-width: 200px;"><label>📞 Parent/Student Mobile No.</label><input type="text" id="mobileNumber" placeholder="e.g., 9876543210" class="msg-input"></div>
+                <div style="flex:1; min-width: 200px;"><label>📧 Email (optional)</label><input type="email" id="emailAddress" placeholder="student@example.com"></div>
+            </div>
+            <div><label>✏️ Message Content</label><textarea id="messageText" rows="3" placeholder="Type your announcement / reminder here..."></textarea></div>
+            <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                <button id="sendSmsBtn" class="small-btn sms-btn" style="background:#0288d1; color:white;"><i class="fas fa-sms"></i> Send via SMS (Demo)</button>
+                <button id="sendWhatsAppBtn" class="small-btn whatsapp-btn" style="background:#25D366; color:white;"><i class="fab fa-whatsapp"></i> Send via WhatsApp</button>
+            </div>
+            <div id="msgStatus" class="success-msg" style="display:none; margin-top:15px;"></div>
+            <p class="note" style="font-size:0.75rem; margin-top:15px;"><i class="fas fa-info-circle"></i> Note: In actual integration, SMS/WhatsApp APIs would be connected. Currently opens WhatsApp with prefilled text (mobile required) and simulates SMS.</p>
+        </div>
+    </div>
+
+    <!-- other existing content: co-curricular, clubs, contact etc -->
+    <div class="container" id="sports">
+        <h2 class="section-title">Co-Curricular Excellence</h2>
+        <div class="grid-cards">
+            <div class="card"><i class="fas fa-futbol"></i><h3>Sports Facilities</h3><p>Regular physical activity, expert coaching, indoor & outdoor games.</p></div>
+            <div class="card"><i class="fas fa-music"></i><h3>Art & Cultural Hub</h3><p>Music, Dance, Activity Block.</p></div>
+            <div class="card"><i class="fas fa-trophy"></i><h3>School Functions</h3><p>Annual Prize Day, Sports Day, Republic Day, Exhibitions.</p></div>
+        </div>
+        <div class="club-list"><span class="club-badge">Book Club</span><span class="club-badge">Robotics Club</span><span class="club-badge">Eco Club</span></div>
+    </div>
+
+    <div class="container" id="contact-us">
+        <h2 class="section-title">Contact Us & Location</h2>
+        <div class="grid-cards">
+            <div class="card"><i class="fas fa-map-marker-alt"></i><h3>Address</h3><p>Guru Nanak Sr. Sec. School, Bhuna Road, Ratia, Haryana - 125051</p>
+                <p id="footerPhoneInline"><i class="fas fa-phone"></i> 98124-37327</p><p id="footerEmailInline"><i class="fas fa-envelope"></i> 41309@cbseshiksha.in</p>
+            </div>
+            <div class="card"><i class="fas fa-map"></i><h3>Location Map</h3><p>Bhuna Road, Ratia (2 km from Bus Stand) – Landmark: Near Gurudwara Singh Sabha.</p></div>
+        </div>
+    </div>
+    <div class="container"><div class="quick-links-row"><div><strong>Quick Links</strong><br>Work with Us<br>Photo Gallery<br>FAQs</div><div><strong>Important Links</strong><br>School Calendar<br>Transport Route<br>Alumni Login</div></div></div>
+</main>
+
+<footer>
+    <div class="footer-grid"><div><h3>Guru Nanak Sr. Sec. School</h3><p>Holistic education since 1998.</p></div><div><h4>Resources</h4><a href="#">Calendar</a><a href="#">Transport</a></div></div>
+    <div class="copyright">© 2026 Guru Nanak Sr. Sec. School, Bhuna Road, Ratia. Admin controlled contact & calendar events.</div>
+</footer>
+
+<!-- ADMIN PANEL FLOATING BUTTON + MODAL (includes calendar event management) -->
+<div class="admin-panel"><button class="admin-toggle" id="adminToggleBtn"><i class="fas fa-user-shield"></i></button></div>
+<div id="adminModal" class="admin-modal">
+    <div class="admin-card">
+        <h3><i class="fas fa-lock"></i> Admin Portal</h3>
+        <div id="loginView"><input type="text" id="adminUsername" placeholder="Username"><input type="password" id="adminPassword" placeholder="Password"><button id="loginBtn">Login</button><div id="loginErrorMsg" class="login-error"></div><div class="edit-section" style="font-size:0.8rem;">Demo: admin / admin123</div></div>
+        <div id="adminPanelView" style="display:none;">
+            <div style="display:flex; justify-content:space-between;"><h4><i class="fas-edit"></i> Admin Controls</h4><span class="admin-badge" style="background:gold;">Logged In</span></div>
+            <div class="edit-section"><label><strong>Edit Contact Info</strong></label><div class="edit-field"><input type="text" id="editPhone" placeholder="Phone"><button id="updatePhoneBtn" class="small-btn">Update Phone</button></div><div class="edit-field"><input type="email" id="editEmail" placeholder="Email"><button id="updateEmailBtn" class="small-btn">Update Email</button></div></div>
+            <div class="edit-section"><label><strong>➕ Add Calendar Event (Monthly Planner)</strong></label><input type="text" id="eventTitle" placeholder="Event Title (e.g., PTM, Holiday, Exam)"><input type="date" id="eventDate"><input type="text" id="eventDesc" placeholder="Description (optional)"><button id="addEventBtn" class="small-btn">Add Event</button><div id="eventMsg" class="success-msg" style="display:none;"></div><hr><button id="resetDefaultEvents" class="small-btn" style="background:#c9a03d;">Reset to Default Events</button></div>
+            <button id="logoutAdminBtn" class="logout-btn">Logout</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ---------- GLOBAL DATA ----------
+    let currentPhone = localStorage.getItem('schoolPhone') || "98124-37327";
+    let currentEmail = localStorage.getItem('schoolEmail') || "41309@cbseshiksha.in";
+    let calendarEvents = JSON.parse(localStorage.getItem('schoolEvents')) || [
+        { title: "Summer Vacation Starts", date: "2026-05-15", description: "School closed for summer break" },
+        { title: "Independence Day Celebration", date: "2026-08-15", description: "Flag hoisting & cultural event" },
+        { title: "PTM (Parent-Teacher Meet)", date: "2026-04-20", description: "Report card distribution" },
+        { title: "Annual Sports Day", date: "2026-12-10", description: "Sports competitions" },
+        { title: "Holiday: Guru Nanak Jayanti", date: "2026-11-15", description: "School closed" },
+        { title: "Monthly Test - Science", date: "2026-04-25", description: "Periodic assessment" }
+    ];
+    let calendarObj = null;
+
+    // update contact UI
+    function updateContactUI() {
+        document.getElementById('phoneDisplay') && (document.getElementById('phoneDisplay').innerHTML = `<i class="fas fa-phone-alt"></i> ${currentPhone}`);
+        document.getElementById('emailDisplay') && (document.getElementById('emailDisplay').innerHTML = `<i class="fas fa-envelope"></i> ${currentEmail}`);
+        let footerPhone = document.getElementById('footerPhoneInline'); if(footerPhone) footerPhone.innerHTML = `<i class="fas fa-phone"></i> ${currentPhone}`;
+        let footerEmail = document.getElementById('footerEmailInline'); if(footerEmail) footerEmail.innerHTML = `<i class="fas fa-envelope"></i> ${currentEmail}`;
+    }
+    updateContactUI();
+
+    // render FullCalendar
+    function renderCalendar() {
+        if(calendarObj) calendarObj.destroy();
+        let calendarEl = document.getElementById('schoolCalendar');
+        if(calendarEl) {
+            calendarObj = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
+                events: calendarEvents.map(ev => ({ title: ev.title, start: ev.date, description: ev.description || '' })),
+                eventClick: function(info) { alert("📌 " + info.event.title + "\n📅 Date: " + info.event.startStr + "\nℹ️ " + (info.event.extendedProps.description || "No additional info")); }
+            });
+            calendarObj.render();
+        }
+    }
+
+    function saveEventsToLocal() { localStorage.setItem('schoolEvents', JSON.stringify(calendarEvents)); renderCalendar(); }
+
+    // Admin logic
+    const ADMIN_USER = "admin", ADMIN_PASS = "admin123";
+    let isAdminLoggedIn = false;
+    const modal = document.getElementById('adminModal'), toggleBtn = document.getElementById('adminToggleBtn');
+    const loginViewDiv = document.getElementById('loginView'), adminPanelDiv = document.getElementById('adminPanelView');
+    const loginBtn = document.getElementById('loginBtn'), logoutBtn = document.getElementById('logoutAdminBtn');
+    const updatePhoneBtn = document.getElementById('updatePhoneBtn'), updateEmailBtn = document.getElementById('updateEmailBtn');
+    const editPhone = document.getElementById('editPhone'), editEmail = document.getElementById('editEmail');
+    const addEventBtn = document.getElementById('addEventBtn'), eventTitle = document.getElementById('eventTitle'), eventDate = document.getElementById('eventDate'), eventDesc = document.getElementById('eventDesc');
+    const resetEventsBtn = document.getElementById('resetDefaultEvents');
+    const loginError = document.getElementById('loginErrorMsg');
+
+    toggleBtn.onclick = () => { modal.classList.add('active'); if(isAdminLoggedIn) { loginViewDiv.style.display = 'none'; adminPanelDiv.style.display = 'block'; editPhone.value = currentPhone; editEmail.value = currentEmail; } else { loginViewDiv.style.display = 'block'; adminPanelDiv.style.display = 'none'; } };
+    modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); });
+    loginBtn.onclick = () => { let u = document.getElementById('adminUsername').value, p = document.getElementById('adminPassword').value; if(u===ADMIN_USER && p===ADMIN_PASS) { isAdminLoggedIn=true; loginViewDiv.style.display='none'; adminPanelDiv.style.display='block'; editPhone.value=currentPhone; editEmail.value=currentEmail; loginError.innerText=''; } else loginError.innerText='Invalid credentials'; };
+    logoutBtn.onclick = () => { isAdminLoggedIn=false; modal.classList.remove('active'); };
+    updatePhoneBtn.onclick = () => { if(!isAdminLoggedIn) return alert("Unauthorized"); let newPhone = editPhone.value.trim(); if(newPhone) { currentPhone = newPhone; localStorage.setItem('schoolPhone', currentPhone); updateContactUI(); showAdminMsg("Phone updated", true); } };
+    updateEmailBtn.onclick = () => { if(!isAdminLoggedIn) return; let newEmail = editEmail.value.trim(); if(newEmail && newEmail.includes('@')) { currentEmail = newEmail; localStorage.setItem('schoolEmail', currentEmail); updateContactUI(); showAdminMsg("Email updated", true); } else showAdminMsg("Invalid email", false); };
+    addEventBtn.onclick = () => { if(!isAdminLoggedIn) return alert("Admin login required"); let title = eventTitle.value.trim(); let date = eventDate.value; if(!title || !date) { showAdminMsg("Title & date required", false); return; } let desc = eventDesc.value.trim(); calendarEvents.push({ title, date, description: desc }); saveEventsToLocal(); eventTitle.value = ''; eventDate.value = ''; eventDesc.value = ''; showAdminMsg("Event added to calendar", true); };
+    resetEventsBtn.onclick = () => { if(!isAdminLoggedIn) return; calendarEvents = [ { title: "Summer Vacation", date: "2026-05-15", description: "School closed" }, { title: "Independence Day", date: "2026-08-15", description: "Celebration" }, { title: "PTM", date: "2026-04-20", description: "Meeting" }, { title: "Sports Day", date: "2026-12-10", description: "Annual" }, { title: "Guru Nanak Jayanti", date: "2026-11-15", description: "Holiday" }, { title: "Monthly Test", date: "2026-04-25", description: "Assessment" } ]; saveEventsToLocal(); showAdminMsg("Reset to default events", true); };
+    function showAdminMsg(msg, isSuccess) { let msgDiv = document.getElementById('eventMsg'); if(msgDiv) { msgDiv.style.display='block'; msgDiv.innerText=msg; msgDiv.style.background=isSuccess?'#d4edda':'#f8d7da'; setTimeout(()=>msgDiv.style.display='none',2000); } }
+    renderCalendar();
+
+    // ---------- SMS / WHATSAPP MESSAGING ----------
+    const sendSmsBtn = document.getElementById('sendSmsBtn');
+    const sendWhatsAppBtn = document.getElementById('sendWhatsAppBtn');
+    const mobileInput = document.getElementById('mobileNumber');
+    const messageText = document.getElementById('messageText');
+    const msgStatusDiv = document.getElementById('msgStatus');
+    function showMsgStatus(text, isSuccess) { msgStatusDiv.style.display = 'block'; msgStatusDiv.innerText = text; msgStatusDiv.style.background = isSuccess ? '#d4edda' : '#fff3cd'; msgStatusDiv.style.color = isSuccess ? '#155724' : '#856404'; setTimeout(()=> msgStatusDiv.style.display='none', 4000); }
+    // SMS simulation (demo)
+    sendSmsBtn.onclick = () => { let mobile = mobileInput.value.trim(); let msg = messageText.value.trim(); if(!mobile || !msg) { showMsgStatus("Please enter mobile number and message", false); return; } if(!/^\d{10}$/.test(mobile)) { showMsgStatus("Enter valid 10-digit mobile number", false); return; } showMsgStatus(`📱 SMS demo: "${msg}" would be sent to ${mobile}. (Actual SMS gateway integration required)`, true); };
+    // WhatsApp: opens WhatsApp with pre-filled message
+    sendWhatsAppBtn.onclick = () => { let mobile = mobileInput.value.trim(); let msg = messageText.value.trim(); if(!mobile) { showMsgStatus("Please enter mobile number for WhatsApp", false); return; } let cleanMobile = mobile.replace(/\D/g, ''); if(cleanMobile.length === 10) cleanMobile = "91" + cleanMobile; let url = `https://wa.me/${cleanMobile}?text=${encodeURIComponent(msg || "Hello from Guru Nanak School, Ratia!")}`; window.open(url, '_blank'); showMsgStatus("Opening WhatsApp... send the message manually if prompted.", true); };
+    // mobile menu compatibility
+    const menuToggle = document.getElementById('menuToggle'), mainMenu = document.getElementById('mainMenu');
+    if(menuToggle) menuToggle.onclick = () => mainMenu.classList.toggle('show');
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => { anchor.addEventListener('click', function(e) { let target = document.querySelector(this.getAttribute('href')); if(target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); if(mainMenu.classList.contains('show')) mainMenu.classList.remove('show'); } }); });
+</script>
+</body>
+</html>
